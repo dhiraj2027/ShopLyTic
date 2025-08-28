@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 const PlaceOrder = () => {
 
   const [method, setMethod] = useState('cod');
+  const [cartData, setCartData] = useState([]);
   const { navigate, backendURL, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -22,6 +23,27 @@ const PlaceOrder = () => {
     country: '',
   })
 
+  useEffect(() => {
+  
+      if(products.length>0) {
+        const tempData = [];
+        for(const items in cartItems) {
+          for(const item in cartItems[items]) {
+            if(cartItems[items][item] > 0) {
+              tempData.push({
+                _id: items,
+                size: item,
+                quantity: cartItems[items][item]
+              })
+            }
+          }
+        }
+    
+        setCartData(tempData);
+      }
+  
+    }, [cartItems, products]);
+
   const onChangeHandler = (event) => {
     const name = event.target.name
     const value = event.target.value
@@ -34,6 +56,7 @@ const PlaceOrder = () => {
     event.preventDefault()
     try {
       
+
       let orderItems = []
 
       for(const items in cartItems) {
@@ -54,6 +77,7 @@ const PlaceOrder = () => {
         items: orderItems,
         amount: getCartAmount() + delivery_fee,
       }
+
 
       switch(method) {
 
@@ -91,6 +115,21 @@ const PlaceOrder = () => {
       console.log(error)
       toast.error(error.message)
     }
+  }
+
+  if(cartData.length === 0) {
+    return (
+      <div className="text-2xl mt-50 mb-50 max-w-4xl mx-auto text-center text-gray-600">
+        <Title text1={'Your Cart is'} text2={'Empty'} />
+        <br />
+        <button
+          onClick={() => navigate('/collection')}
+          className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+        >
+          Shop Now
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -150,7 +189,7 @@ const PlaceOrder = () => {
           </div>
 
           <div className='w-full text-end mt-8'>
-            <button type='submit' className='bg-black text-white px-16 py-3 text-sm active:bg-gray-700'>PLACE ORDER</button>
+            <button type='submit' className='bg-black rounded text-white hover:bg-gray-800 transition px-16 py-3'>PLACE ORDER</button>
           </div>
 
         </div>

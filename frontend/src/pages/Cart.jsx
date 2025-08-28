@@ -1,17 +1,23 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { useState } from 'react';
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
 import CartTotal from '../components/CartTotal';
+import { toast } from 'react-toastify';
 
 const Cart = () => {
   
-  const { products, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext);
+  const { products, token, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext);
 
   const [cartData, setCartData] = useState([]);
 
   useEffect(() => {
+
+    if (!token) {
+      toast.error('You must be logged in to place an order.');
+      navigate('/login');
+      return;
+    }
 
     if(products.length>0) {
       const tempData = [];
@@ -30,7 +36,24 @@ const Cart = () => {
       setCartData(tempData);
     }
 
-  }, [cartItems, products])
+  }, [cartItems, products, token, navigate]);
+
+  
+  
+  if(cartData.length === 0) {
+    return (
+      <div className="text-2xl mt-50 mb-50 max-w-4xl mx-auto text-center text-gray-600">
+        <Title text1={'Your Cart is'} text2={'Empty'} />
+        <br />
+        <button
+          onClick={() => navigate('/collection')}
+          className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+        >
+          Shop Now
+        </button>
+      </div>
+    );
+  }
   
   return (
     <div className='border-t border-gray-300 pt-14'>
@@ -47,12 +70,12 @@ const Cart = () => {
             return (
               <div key={index} className='py-4 border-t border-b border-gray-300 text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4 '>
                 <div className='flex items-start gap-6'>
-                  <img className='w-16 sm:w-20' src={productData.image[0]} alt="" />
+                  <img className='w-16 sm:w-20 rounded' src={productData.image[0]} alt="" />
                   <div>
-                    <p className='text-xs sm:text'>{productData.name}</p>
-                    <div className='flex items-center gap-5 mt-2'>
-                      <p>{currency}{productData.price}</p>
-                      <p className='px-2 sm:px-3 sm:py-1 border border-gray-300 bg-slate-50'>{item.size}</p>
+                    <p className='text-sm font-semibold sm:text'>{productData.name}</p>
+                    <div className='flex-1 items-center mt-1'>
+                      <p className='text-gray-600 text-sm'>Size: {item.size}</p>
+                      <p className='text-indigo-600 font-bold'>{currency}{productData.price}</p>
 
                     </div>
                   </div>
@@ -66,14 +89,14 @@ const Cart = () => {
         }
       </div>
 
-        <div className='flex justify-end my-20'>
-          <div className='w-full sm:w-[450px] '>
-            <CartTotal />
-            <div className='w-full text-end'>
-              <button onClick={()=>navigate('/place-order')} className='bg-black text-white text-sm my-8 px-8 py-3 active:bg-gray-700'>PROCEED TO CHECKOUT</button>
-            </div>
+      <div className='flex justify-end my-20'>
+        <div className='w-full sm:w-[450px] '>
+          <CartTotal />
+          <div className='w-full text-end'>
+            <button onClick={()=>navigate('/place-order')} className='bg-indigo-600 rounded-lg text-white font-semibold hover:bg-indigo-700 my-8 px-8 py-3 active:bg-gray-700'>PROCEED TO CHECKOUT</button>
           </div>
         </div>
+      </div>
 
     </div>
   )

@@ -66,9 +66,9 @@ const ShopContextProvider = (props) => {
                         totalCount += cartItems[items][item];
                     }
                 }
-                // eslint-disable-next-line no-empty
                 catch (error) {
-                    
+                    console.log(error)
+                    toast.error(error.message)
                 }
             }
         }
@@ -106,9 +106,9 @@ const ShopContextProvider = (props) => {
                     if(cartItems[items][item] > 0) {
                         totalAmount += itemInfo.price * cartItems[items][item];
                     }
-                // eslint-disable-next-line no-empty
                 } catch (error) {
-                    
+                    console.log(error)
+                    toast.error(error.message)
                 }
             }
         }

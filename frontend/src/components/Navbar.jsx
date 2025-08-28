@@ -5,85 +5,198 @@ import { ShopContext } from '../context/ShopContext';
 
 const Navbar = () => {
   const [ visible, setVisible ] = useState(false);
-  const {setShowSearch, getCartCount, navigate, token, setToken, setCartItems} = useContext(ShopContext);
-
-  const logout = () => {
-    localStorage.removeItem('token')
-    setToken('')
-    setCartItems({})
-    navigate('/login')
+  const {getCartCount, navigate, token, setToken, setCartItems} = useContext(ShopContext);
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken('');
+    setCartItems({});
+    navigate('/login');
+    setVisible(false);
   }
 
   return (
-    <div className='flex items-center justify-between pt-5 font-medium'>
-        <Link to='/' ><img src={assets.logo} className="w-36" alt="" /></Link>
+    <nav className='w-full bg-white z-50'>
+      <div className='max-w-7xl mx-auto flex items-center justify-between px-6 h-16'>
+        <Link to='/'  className="text-2xl font-bold text-indigo-600 tracking-wide">
+          ShopLyTic
+        </Link>
 
-        <ul className='hidden sm:flex gap-5 text-sm text-gray-700'>
-          <NavLink to='/' className='flex flex-col items-center gap-1'>
-            <p>Home</p>
-            <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden'/>
+        <div className='hidden sm:flex lg:space-x-8 md:space-x-5'>
+          <NavLink 
+            to='/' 
+            exact="true"
+            className={({ isActive }) => 
+              isActive
+            ? 'text-indigo-600 font-semibold'
+            : 'hover:text-indigo-600 transition'
+          }
+          >
+            Home
           </NavLink>
 
-          <NavLink to='/collection' className='flex flex-col items-center gap-1'>
-            <p>Collection</p>
-            <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden'/>
+          <NavLink
+            to="/collection"
+            className={({ isActive }) =>
+              isActive
+            ? 'text-indigo-600 font-semibold'
+            : 'hover:text-indigo-600 transition'
+          }
+          >
+            Collection
           </NavLink>
 
-          <NavLink to='/about' className='flex flex-col items-center gap-1'>
-            <p>About</p>
-            <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden'/>
+          <NavLink
+            to="/about"
+            className={({ isActive }) =>
+              isActive
+            ? 'text-indigo-600 font-semibold'
+            : 'hover:text-indigo-600 transition'
+          }
+          >
+            About
           </NavLink>
 
-          <NavLink to='/contact' className='flex flex-col items-center gap-1'>
-            <p>Contact</p>
-            <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden'/>
+          <NavLink
+            to="/contact"
+            className={({ isActive }) =>
+              isActive
+            ? 'text-indigo-600 font-semibold'
+            : 'hover:text-indigo-600 transition'
+          }
+          >
+            Contact
           </NavLink>
-        </ul>
 
-        <div className='flex items-center gap-6'>
-          <img onClick={()=>setShowSearch(true)} src={assets.search_icon} className='w-5 cursor-pointer' alt="" />
+          {token && (
+            <>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  isActive
+                ? 'text-indigo-600 font-semibold'
+                : 'hover:text-indigo-600 transition'
+              }
+              >
+                My Profile
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="text-red-600 font-medium hover:text-red-700 transition"
+                >
+                Log Out
+              </button>
+            </>
+          )}
 
-          <div className='group relative'>
-            <img onClick={()=> token ? null : navigate('/login')} src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
-            
-            {/* Dropdown Menu */}
-            
-            {
-              token && 
-              <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
-                <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
-                  <p className='cursor-pointer hover:text-black'>My Profile</p>
-                  <p onClick={()=>navigate('/orders')} className='cursor-pointer hover:text-black'>Orders</p>
-                  <p onClick={logout} className='cursor-pointer hover:text-black'>Log Out</p>
-                </div>
-              </div>
-            }
+          {!token && (
+            <NavLink
+            to="/login"
+            className={({ isActive }) =>
+              isActive
+            ? 'text-indigo-600 font-semibold'
+            : 'hover:text-indigo-600 transition'
+          }
+          >
+              Login
+            </NavLink>
+          )}
 
+          <div className="relative cursor-pointer" onClick={() => navigate('/cart')}>
+            <img src={assets.cart_icon} alt="Cart" className="w-6 h-6" />
+            {getCartCount() > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                {getCartCount()}
+              </span>
+            )}
           </div>
-          
-          <Link to='/cart' className='relative'>
-            <img src={assets.cart_icon} className='w-5 min-w-5' alt="" />
-            <p className='absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]'>{getCartCount()}</p>
-          </Link>
-          <img onClick={()=>setVisible(true)} src={assets.menu_icon} className='w-5 cursor-pointer sm:hidden' />
-        </div>
-        
-        {/* Sidebar menu for small screens */}
-        <div className={`absolute top-0 bottom-0 overflow-hidden bg-white transition-all ${visible ? 'w-full' : 'w-0'}`}>
-          <div className='flex flex-col text-gray-600'>
-            <div className='flex items-center gap-4 p-3'> 
-              <img onClick={()=>setVisible(false)} src={assets.dropdown_icon} className='h-4 rotate-180 cursor-pointer' />
-              <p>Back</p>
-            </div>
-            <NavLink onClick={()=>setVisible(false)} className='py-2 px-4 border-t border-b border-gray-300' to='/'>Home</NavLink>
-            <NavLink onClick={()=>setVisible(false)} className='py-2 px-4 border-b border-gray-300' to='/collection'>Collection</NavLink>
-            <NavLink onClick={()=>setVisible(false)} className='py-2 px-4 border-b border-gray-300' to='/about'>About</NavLink>
-            <NavLink onClick={()=>setVisible(false)} className='py-2 px-4 border-b border-gray-300' to='/contact'>Contact</NavLink>
-          </div>   
         </div>
 
-    </div>
-  )
-}
+        {/* Mobile menu button */}
+        <button
+          className="sm:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          aria-label="Toggle menu"
+          onClick={() => setVisible(!visible)}
+          >
+          <img src={assets.menu_icon} alt="Menu" className="w-6 h-6" />
+        </button>
+      </div>
 
-export default Navbar
+      {/* Mobile menu */}
+      {visible && (
+        <div className="sm:hidden bg-white border-t border-gray-200 shadow-md">
+          <NavLink
+            to="/"
+            exact="true"
+            onClick={() => setVisible(false)}
+            className="block py-3 px-6 hover:bg-indigo-50"
+            >
+            Home
+          </NavLink>
+
+          <NavLink
+            to="/collection"
+            onClick={() => setVisible(false)}
+            className="block py-3 px-6 hover:bg-indigo-50"
+            >
+            Collection
+          </NavLink>
+
+          <NavLink
+            to="/about"
+            onClick={() => setVisible(false)}
+            className="block py-3 px-6 hover:bg-indigo-50"
+            >
+            About
+          </NavLink>
+
+          <NavLink
+            to="/contact"
+            onClick={() => setVisible(false)}
+            className="block py-3 px-6 hover:bg-indigo-50"
+            >
+            Contact
+          </NavLink>
+
+          {token ? (
+            <>
+              <NavLink
+                to="/profile"
+                onClick={() => setVisible(false)}
+                className="block py-3 px-6 hover:bg-indigo-50"
+                >
+                My Profile
+              </NavLink>
+
+              <button
+                onClick={handleLogout}
+                className="w-full text-left py-3 px-6 text-red-600 hover:bg-indigo-50"
+                >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <NavLink
+            to="/login"
+            onClick={() => setVisible(false)}
+            className="block py-3 px-6 hover:bg-indigo-50"
+            >
+              Login
+            </NavLink>
+          )}
+          <div
+            onClick={() => {
+              navigate('/cart');
+              setVisible(false);
+            }}
+            className="py-3 px-6 cursor-pointer hover:bg-indigo-50 flex items-center gap-2"
+          >
+            <img src={assets.cart_icon} alt="Cart" className="w-5 h-5" />
+            <span>Cart ({getCartCount()})</span>
+          </div>
+        </div>
+      )}
+    </nav>  
+  );
+};
+
+export default Navbar;
